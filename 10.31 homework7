@@ -1,0 +1,94 @@
+import geomerative.*;
+RFont font;
+RPolygon polygon;
+PFont font1;//only display Text. Not ART font.
+
+//below is define charactor for Art font generation. Attention: Do not mix this 'char' with other variables.
+char a = 'A';
+char r = 'R';
+char t = 'T';
+char s = 'S';
+char j = 'J';
+char u = 'U';
+
+void setup() {
+  frameRate(3);
+  size(1400, 800, P2D);
+  font1=createFont("SourceCodePro-Regular.ttf",240);
+  colorMode(HSB, 360, 100, 100);
+ // background(200);
+  smooth();
+  noStroke();
+ }
+
+void draw() {
+  //setup background for clearup.
+  background(200,0,85);
+  //draw background 
+  for (int y=32;y<=height;y+=8) {
+    for (int x=12;x<=width;x+=15) {
+      fill(200,20,80);
+      ellipse(x+y,y,16-y/10,16-y/10);
+    }
+  }
+  //font1=createFont("SourceCodePro-Regular.ttf",24);
+   fill(130,30,80);
+  textFont(font1);
+  textSize(120);
+  text("2023 Nov",800,300);
+  textSize(30);
+  text("Li muze",100,700);
+
+    generateFont(a,300, 200, 200,360);
+   // generateFont(a,250,220,180,320);
+    generateFont(r,300, 400, 200,360);
+    generateFont(t,300, 600, 200,360);
+    generateFont(s,300, 600, 500,200);
+    generateFont(j,300, 800, 500,200);
+    generateFont(t,300, 1000, 500,200);
+    generateFont(u,300, 1200, 500,200);
+}
+
+/* generate Art charactor design, ch: character to be display, fsize: font dimension, x,y, character coordination, fcolor:font color*/
+void generateFont(char ch, int fsize, int x, int y, int fcolor) {
+  noStroke();
+  //stroke(0);
+
+  char letter = ch;
+
+  // always initialize the library in setup. below fixed usage can Not be change 
+  //Purpose: use libarary function to open a vector font lib.
+  RG.init(this);
+  font = new RFont("chunkfive.ttf", fsize , CENTER);
+
+  // Number of segments between each point
+  RCommand.setSegmentLength(10);
+  RCommand.setSegmentator(RCommand.UNIFORMLENGTH);
+
+  // get a polygon from a single character.
+  polygon = font.toPolygon(letter);
+
+  pushMatrix();
+  // translate to the middle. Use plus in y because text is drawn from y and up
+  translate(x, y + (polygon.getHeight()/2));
+  float noiseCount = 0;
+ noiseDetail(2, 1.3);
+//Algorithm to generate ART font. Firstly get points of vector font to a matrix.
+//secondly, draw a circle with point 
+//font color: change with noise+random
+//Circle dimension also plus a noise+random.
+  for (int i = 0; i < polygon.contours.length; i++) {
+    RContour curContour = polygon.contours[i];
+    for (int j = 0; j < curContour.points.length; j++) {
+      float circleD = round(random(-1.5, 1.5)) * (noise(noiseCount)*10);
+      println("danceFactor=",circleD);//check range of circleD for mapping max and min;
+      //now for each RPoint (which is a vector), make an ellipse
+      RPoint curPoint = curContour.points[j];
+      float colorsat=map(circleD,-5.5,5.5,30,100);
+      fill(fcolor,colorsat,100);
+      ellipse(curPoint.x,curPoint.y, 10+circleD,10+circleD);
+      noiseCount += 0.1;
+         }
+   }
+  popMatrix();
+}
